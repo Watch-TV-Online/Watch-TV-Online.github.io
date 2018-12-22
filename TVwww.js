@@ -49,7 +49,17 @@ var TVwwwRender = function (payload) {
     TVwww.fn.initActive = function () {
 
         if (TVwww.getProp([TVwww.active.current, 'settings'].j())) {
-            var set = JSON.parse(JSON.stringify(TVwww.settings));
+            var cache = [];
+            var set = JSON.parse(JSON.stringify(TVwww.settings, function(key, value) {
+                if (typeof value === 'object' && value !== null) {
+                    if (cache.indexOf(value) !== -1) {
+                        try {return JSON.parse(JSON.stringify(value));} catch (error) {return;}
+                    }
+                    cache.push(value);
+                }
+                return value;
+            }));
+            cache = null;
             Object.deepExtend(set, TVwww.getProp([TVwww.active.current, 'settings'].j()));
             TVwww.settings = set;
         }
@@ -83,7 +93,17 @@ var TVwwwRender = function (payload) {
                 items.forEach(function (item, i) {
                     if (active) delete item.active;
                     if (item.active) {
-                        var act = JSON.parse(JSON.stringify(TVwww.active));
+                        var cache = [];
+                        var act = JSON.parse(JSON.stringify(TVwww.active, function(key, value) {
+                            if (typeof value === 'object' && value !== null) {
+                                if (cache.indexOf(value) !== -1) {
+                                    try {return JSON.parse(JSON.stringify(value));} catch (error) {return;}
+                                }
+                                cache.push(value);
+                            }
+                            return value;
+                        }));
+                        cache = null;
                         Object.deepExtend(act, item);
                         TVwww.active = act;
                         active = true;
