@@ -12,7 +12,6 @@ var TVwwwRender = function (payload) {
         categories: [],
         settings: {
             canvas: {
-                body: b,
                 w: width,
                 h: height
             },
@@ -38,15 +37,14 @@ var TVwwwRender = function (payload) {
             current: '',
             display: '',
             key: ''
-        },
-        fn: {}
+        }
     };
 
     var TVwww = this.TVwwwRender;
 
     if (payload) Object.deepExtend(TVwww, payload);
 
-    TVwww.fn.initActive = function () {
+    var initActive = function () {
 
         if (TVwww.getProp([TVwww.active.current, 'settings'].j())) {
             var cache = [];
@@ -202,7 +200,7 @@ var TVwwwRender = function (payload) {
         });
     };
 
-    TVwww.fn.renderPage = function () {
+    var renderPage = function () {
         TVwww.settings.blocks.forEach(function (block) {
 
             var b = TVwww.getProp([TVwww.active.display, block].j())
@@ -254,7 +252,7 @@ var TVwwwRender = function (payload) {
                         div.appendChild(divContent);
                     });
 
-                TVwww.settings.canvas.body.appendChild(div);
+                document.getElementsByTagName('body')[0].appendChild(div);
 
             }
         });
@@ -263,12 +261,12 @@ var TVwwwRender = function (payload) {
         if (!background) {
             var div = document.createElement('div');
             div.setAttribute('id', 'background');
-            TVwww.settings.canvas.body.appendChild(div);
+            document.getElementsByTagName('body')[0].appendChild(div);
         }
 
     };
 
-    TVwww.fn.keydown = function (key) {
+    var keydown = function (key) {
         key = typeof key === 'string'
             ? key.toLowerCase()
             : key;
@@ -308,7 +306,7 @@ var TVwwwRender = function (payload) {
         return key;
     };
 
-    TVwww.fn.setStyles = function () {
+    var setStyles = function () {
         var style = document.createElement('style');
         var styles = [
             '#background {' +
@@ -352,7 +350,7 @@ var TVwwwRender = function (payload) {
 
     document.addEventListener('keydown', function (event) {
         var key = event.key || event.keyCode;
-        TVwww.active.key = key = TVwww.fn.keydown(key);
+        TVwww.active.key = key = keydown(key);
 
         if (event.defaultPrevented || !key) {
             console.log(key);
@@ -372,14 +370,14 @@ var TVwwwRender = function (payload) {
             TVwww.setProp([TVwww.active.display, 'contents', '0', 'active'].j(), true);
         }
 
-        TVwww.fn.initActive();
-        TVwww.fn.renderPage();
+        initActive();
+        renderPage();
 
     }, false);
 
-    TVwww.fn.initActive();
-    TVwww.fn.renderPage();
-    TVwww.fn.setStyles();
+    initActive();
+    renderPage();
+    setStyles();
 
 };
 
