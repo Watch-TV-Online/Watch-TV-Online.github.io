@@ -44,8 +44,7 @@ var TVwwwRender = function (payload) {
 
     if (payload) Object.deepExtend(TVwww, payload);
 
-    var initActive = function () {
-
+    function initActive() {
         if (TVwww.getProp([TVwww.active.current, 'settings'].j())) {
             var cache = [];
             var set = JSON.parse(JSON.stringify(TVwww.settings, function(key, value) {
@@ -198,10 +197,13 @@ var TVwwwRender = function (payload) {
                 });
             }
         });
-    };
+    }
 
-    var renderPage = function () {
-        TVwww.settings.blocks.forEach(function (block) {
+    function renderPage(blocks) {
+
+        blocks = blocks ? blocks : TVwww.settings.blocks;
+
+        blocks.forEach(function (block) {
 
             var b = TVwww.getProp([TVwww.active.display, block].j())
                 ? [TVwww.active.display, block].j()
@@ -239,15 +241,18 @@ var TVwwwRender = function (payload) {
 
                         var divItemBg = document.createElement('div');
                         divItemBg.setAttribute('class', 'bg');
-                        divItemBg.setAttribute('style', '' +
-                            'background:#000' + (item.image ? ' url(' + item.image + ') center center no-repeat' : '') + ';' +
-                            'background-size: cover;');
+
+                        var divItemImage = document.createElement('div');
+                        divItemImage.setAttribute('class', 'image');
+                        divItemImage.setAttribute('style', '' +
+                           (item.image ? 'background:#000 url(' + item.image + ') 100% 100% no-repeat; background-size: cover;' : ''));
 
                         divItemTitle.innerHTML = item.title || '';
 
                         divItem.appendChild(divItemTitle);
                         divItem.appendChild(divItemBody);
                         divItem.appendChild(divItemBg);
+                        divItem.appendChild(divItemImage);
                         divContent.appendChild(divItem);
                         div.appendChild(divContent);
                     });
@@ -264,9 +269,9 @@ var TVwwwRender = function (payload) {
             document.getElementsByTagName('body')[0].appendChild(div);
         }
 
-    };
+    }
 
-    var keydown = function (key) {
+    function keyDown(key) {
         key = typeof key === 'string'
             ? key.toLowerCase()
             : key;
@@ -304,9 +309,9 @@ var TVwwwRender = function (payload) {
                 key = '';
         }
         return key;
-    };
+    }
 
-    var setStyles = function () {
+    function setStyles() {
         var style = document.createElement('style');
         var styles = [
             '#background {' +
@@ -333,11 +338,21 @@ var TVwwwRender = function (payload) {
             'width:' + Math.floor(TVwww.settings.contents.w / TVwww.settings.contents.columns) + 'px;' +
             'height:' + Math.floor(TVwww.settings.contents.h / TVwww.settings.contents.rows) + 'px;' +
             '}',
+            '#contents .contents .item .title {' +
+            'width:' + Math.floor(TVwww.settings.contents.w / TVwww.settings.contents.columns) + 'px;' +
+            'height:' + Math.floor(TVwww.settings.contents.h / TVwww.settings.contents.rows) + 'px;' +
+            'line-height:' + Math.floor(TVwww.settings.contents.h / TVwww.settings.contents.rows) + 'px;' +
+            '}',
             '#categories .categories .item {' +
             'width:' + Math.floor(TVwww.settings.categories.w / TVwww.settings.categories.columns) + 'px;' +
             'height:' + Math.floor(TVwww.settings.categories.h / TVwww.settings.categories.rows) + 'px;' +
             '}',
-            '#contents .contents .item.active .bg {' +
+            '#categories .categories .item .title {' +
+            'width:' + Math.floor(TVwww.settings.categories.w / TVwww.settings.categories.columns) + 'px;' +
+            'height:' + Math.floor(TVwww.settings.categories.h / TVwww.settings.categories.rows) + 'px;' +
+            'line-height:' + Math.floor(TVwww.settings.categories.h / TVwww.settings.categories.rows) + 'px;' +
+            '}',
+            '#contents .contents .item.active .image {' +
             'top: -10px;' +
             'left: -10px;' +
             'width:' + Math.floor(TVwww.settings.contents.w / TVwww.settings.contents.columns + 20) + 'px;' +
@@ -346,16 +361,18 @@ var TVwwwRender = function (payload) {
         ];
         style.innerHTML = styles.join('');
         document.getElementsByTagName('head')[0].appendChild(style);
-    };
+    }
 
     document.addEventListener('keydown', function (event) {
         var key = event.key || event.keyCode;
-        TVwww.active.key = key = keydown(key);
+        TVwww.active.key = key = keyDown(key);
 
         if (event.defaultPrevented || !key) {
             console.log(key);
             return;
         }
+
+        var blocks = [];
 
         if (typeof TVwww.active[key] === 'string') {
             if (/^http|\//ig.test(TVwww.active[key])) {
@@ -364,14 +381,22 @@ var TVwwwRender = function (payload) {
             }
             TVwww.setProp([TVwww.active.current, 'active'].j(), false);
             TVwww.setProp([TVwww.active[key], 'active'].j(), true);
+            if (TVwww.active.current.indexOf('categories')+1 || TVwww.active[key].indexOf('categories')+1) {
+                blocks.push('categories');
+            }
+            if (TVwww.active.current.indexOf('contents')+1 || TVwww.active[key].indexOf('contents')+1) {
+                blocks.push('contents');
+            }
         }
         else {
             TVwww.setProp([TVwww.active.current, 'active'].j(), false);
             TVwww.setProp([TVwww.active.display, 'contents', '0', 'active'].j(), true);
+            if (TVwww.active.current.indexOf('categories')+1) blocks.push('categories');
+            blocks.push('contents');
         }
 
         initActive();
-        renderPage();
+        renderPage(blocks);
 
     }, false);
 
