@@ -53,7 +53,7 @@ var TVwwwRender = function (payload) {
             var set = JSON.parse(JSON.stringify(TVwww.settings, function(key, value) {
                 if (typeof value === 'object' && value !== null) {
                     if (cache.indexOf(value) !== -1) {
-                        try {return JSON.parse(JSON.stringify(value));} catch (error) {return;}
+                        try {return JSON.parse(JSON.stringify(value));} catch (error) {console.log(error);return;}
                     }
                     cache.push(value);
                 }
@@ -97,7 +97,7 @@ var TVwwwRender = function (payload) {
                         var act = JSON.parse(JSON.stringify(TVwww.active, function(key, value) {
                             if (typeof value === 'object' && value !== null) {
                                 if (cache.indexOf(value) !== -1) {
-                                    try {return JSON.parse(JSON.stringify(value));} catch (error) {return;}
+                                    try {return JSON.parse(JSON.stringify(value));} catch (error) {console.log(error);return;}
                                 }
                                 cache.push(value);
                             }
@@ -230,8 +230,6 @@ var TVwwwRender = function (payload) {
                         divItem.setAttribute('class', 'item' +
                             (item.active ? ' active' : '') +
                             (TVwww.active.display.indexOf([b, TVwww.active[block].begin+id].j())+1 ? ' current' : ''));
-
-                        console.log([b, id].j(), TVwww.active.display);
 
                         var divItemTitle = document.createElement('div');
                         divItemTitle.setAttribute('class', 'title');
